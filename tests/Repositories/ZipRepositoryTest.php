@@ -4,6 +4,8 @@ namespace Chumper\Zipper\Repositories;
 
 use Exception;
 use Mockery;
+use Mockery\Mock;
+use PHPUnit_Framework_TestCase;
 use ZipArchive;
 
 /**
@@ -13,7 +15,7 @@ use ZipArchive;
  * Time: 20:57
  * To change this template use File | Settings | File Templates.
  */
-class ZipRepositoryTest extends \PHPUnit_Framework_TestCase
+class ZipRepositoryTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var ZipRepository
@@ -21,7 +23,7 @@ class ZipRepositoryTest extends \PHPUnit_Framework_TestCase
     public $zip;
 
     /**
-     * @var \Mockery\Mock
+     * @var Mock
      */
     public $mock;
 

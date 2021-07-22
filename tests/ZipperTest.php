@@ -6,17 +6,19 @@ use Exception;
 use Illuminate\Filesystem\Filesystem;
 use InvalidArgumentException;
 use Mockery;
+use Mockery\Mock;
+use PHPUnit_Framework_TestCase;
 use RuntimeException;
 
-class ZipperTest extends \PHPUnit_Framework_TestCase
+class ZipperTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Chumper\Zipper\Zipper
+     * @var Zipper
      */
     public $archive;
 
     /**
-     * @var \Mockery\Mock
+     * @var Mock
      */
     public $file;
 
@@ -84,7 +86,7 @@ class ZipperTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('foo', $this->archive->getFileContent('foo'));
         $this->assertSame('foo.bar', $this->archive->getFileContent('foo.bar'));
     }
-    
+
     public function testAddAndGetWithCustomFilenameArray()
     {
         $this->file->shouldReceive('isFile')->with('foo.bar')

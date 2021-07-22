@@ -39,8 +39,9 @@ Zipper::make('public/test.zip')->add($files)->close();
 - by default the package will create the `test.zip` in the project route folder but in the example above we changed it to `project_route/public/`.
 
 ## Another example
+
 ```php
-$zipper = new \Chumper\Zipper\Zipper;
+use Chumper\Zipper\Zipper;$zipper = new Zipper;
 
 $zipper->make('test.zip')->folder('test')->add('composer.json');
 $zipper->zip('test.zip')->folder('test')->add('composer.json','test');

@@ -6,6 +6,8 @@ use Chumper\Zipper\Repositories\RepositoryInterface;
 use Exception;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * This Zipper class is a wrapper around the ZipArchive methods with some handy functions
@@ -76,11 +78,11 @@ class Zipper
      * @param $pathToFile string The file to open
      * @param RepositoryInterface|string $type The type of the archive, defaults to zip, possible are zip, phar
      *
-     * @throws \RuntimeException
-     * @throws \Exception
-     * @throws \InvalidArgumentException
-     *
      * @return $this Zipper instance
+     *@throws Exception
+     * @throws InvalidArgumentException
+     *
+     * @throws RuntimeException
      */
     public function make($pathToFile, $type = 'zip')
     {
@@ -92,7 +94,7 @@ class Zipper
         }
 
         if (!is_subclass_of($objectOrName, 'Chumper\Zipper\Repositories\RepositoryInterface')) {
-            throw new \InvalidArgumentException("Class for '{$objectOrName}' must implement RepositoryInterface interface");
+            throw new InvalidArgumentException("Class for '{$objectOrName}' must implement RepositoryInterface interface");
         }
 
         try {
@@ -115,9 +117,9 @@ class Zipper
      *
      * @param $pathToFile
      *
-     * @throws \Exception
-     *
      * @return $this
+     *@throws Exception
+     *
      */
     public function zip($pathToFile)
     {
@@ -131,9 +133,9 @@ class Zipper
      *
      * @param $pathToFile
      *
-     * @throws \Exception
-     *
      * @return $this
+     *@throws Exception
+     *
      */
     public function phar($pathToFile)
     {
@@ -147,9 +149,9 @@ class Zipper
      *
      * @param $pathToFile
      *
-     * @throws \Exception
-     *
      * @return $this
+     *@throws Exception
+     *
      */
     public function rar($pathToFile)
     {
@@ -167,12 +169,12 @@ class Zipper
      * @param array $files       An array of files
      * @param int   $methodFlags The Method the files should be treated
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function extractTo($path, array $files = [], $methodFlags = self::BLACKLIST)
     {
         if (!$this->file->exists($path) && !$this->file->makeDirectory($path, 0755, true)) {
-            throw new \RuntimeException('Failed to create folder');
+            throw new RuntimeException('Failed to create folder');
         }
 
         if ($methodFlags & self::EXACT_MATCH) {
@@ -202,13 +204,13 @@ class Zipper
      * @param string $extractToPath The path to extract to
      * @param string $regex         regular expression used to match files. See @link http://php.net/manual/en/reference.pcre.pattern.syntax.php
      *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public function extractMatchingRegex($extractToPath, $regex)
     {
         if (empty($regex)) {
-            throw new \InvalidArgumentException('Missing pass valid regex parameter');
+            throw new InvalidArgumentException('Missing pass valid regex parameter');
         }
 
         $this->extractFilesInternal($extractToPath, function ($filename) use ($regex) {
@@ -219,7 +221,7 @@ class Zipper
                 //invalid pattern for preg_match raises E_WARNING and returns FALSE
                 //so if you have custom error_handler set to catch and throw E_WARNINGs you never end up here
                 //but if you have not - this will throw exception
-                throw new \RuntimeException("regular expression match on '$filename' failed with error. Please check if pattern is valid regular expression.");
+                throw new RuntimeException("regular expression match on '$filename' failed with error. Please check if pattern is valid regular expression.");
             }
 
             return false;
@@ -231,9 +233,9 @@ class Zipper
      *
      * @param $filePath string The full path (including all folders) of the file in the zip
      *
-     * @throws \Exception
-     *
      * @return mixed returns the content or throws an exception
+     *@throws Exception
+     *
      */
     public function getFileContent($filePath)
     {
@@ -472,7 +474,7 @@ class Zipper
      *
      * @param string|null $regexFilter regular expression to filter returned files/folders. See @link http://php.net/manual/en/reference.pcre.pattern.syntax.php
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      *
      * @return array
      */
@@ -490,7 +492,7 @@ class Zipper
                 if ($match === 1) {
                     $filesList[] = $file;
                 } elseif ($match === false) {
-                    throw new \RuntimeException("regular expression match on '$file' failed with error. Please check if pattern is valid regular expression.");
+                    throw new RuntimeException("regular expression match on '$file' failed with error. Please check if pattern is valid regular expression.");
                 }
             };
         } else {
@@ -522,16 +524,16 @@ class Zipper
     /**
      * @param $pathToZip
      *
-     * @throws \Exception
-     *
      * @return bool
+     * @throws Exception
+     *
      */
     private function createArchiveFile($pathToZip)
     {
         if (!$this->file->exists($pathToZip)) {
             $dirname = dirname($pathToZip);
             if (!$this->file->exists($dirname) && !$this->file->makeDirectory($dirname, 0755, true)) {
-                throw new \RuntimeException('Failed to create folder');
+                throw new RuntimeException('Failed to create folder');
             } elseif (!$this->file->isWritable($dirname)) {
                 throw new Exception(sprintf('The path "%s" is not writeable', $pathToZip));
             }
@@ -610,7 +612,7 @@ class Zipper
      * @param $fileName
      * @param $path
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     private function extractOneFileInternal($fileName, $path)
     {
@@ -618,13 +620,13 @@ class Zipper
 
         //Prevent Zip traversal attacks
         if (strpos($fileName, '../') !== false || strpos($fileName, '..\\') !== false) {
-            throw new \RuntimeException('Special characters found within filenames');
+            throw new RuntimeException('Special characters found within filenames');
         }
 
         // We need to create the directory first in case it doesn't exist
         $dir = pathinfo($path.DIRECTORY_SEPARATOR.$tmpPath, PATHINFO_DIRNAME);
         if (!$this->file->exists($dir) && !$this->file->makeDirectory($dir, 0755, true, true)) {
-            throw new \RuntimeException('Failed to create folders');
+            throw new RuntimeException('Failed to create folders');
         }
 
         $toPath = $path.DIRECTORY_SEPARATOR.$tmpPath;

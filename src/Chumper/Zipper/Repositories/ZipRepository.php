@@ -16,7 +16,7 @@ class ZipRepository implements RepositoryInterface
      * @param bool $create
      * @param $archive
      *
-     * @throws \Exception
+     * @throws Exception
      *
      * @return ZipRepository
      */
